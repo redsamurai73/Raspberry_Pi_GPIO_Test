@@ -16,7 +16,6 @@ GPIO.setup(pin, GPIO.OUT,initial = 0);
 filetime = open('time');
 schedule = filetime.readlines();
 n = len(schedule);
-print(n);
 filetime.close();
 Pinstate_time = False;
 Pinstate_temp = False;
@@ -36,14 +35,11 @@ def get_temp():
 currenttime = (datetime.now());
 currenttime = datetime(currenttime.year, currenttime.month, currenttime.day, currenttime.hour, currenttime.minute, currenttime.second);
 for i in range(0, n, 2):
-    print(i);
     z = '%H:%M\n' if i != n - 2 else '%H:%M';
     settimeON = datetime.strptime(schedule[i], '%H:%M\n');
     settimeON = datetime(currenttime.year, currenttime.month, currenttime.day, settimeON.hour, settimeON.minute);
-    print(settimeON);
     settimeOFF = datetime.strptime(schedule[i+1], z);
     settimeOFF = datetime(currenttime.year, currenttime.month, currenttime.day, settimeOFF.hour, settimeOFF.minute);
-    print(settimeOFF);
     
     settime = Time(settimeON, settimeOFF);
     time_array.append(settime);
