@@ -7,8 +7,8 @@ from re import findall
 from subprocess import check_output
 from time import sleep
 
-pin = 15;           #Номер пина
-tempON = 50;        #Температура, при которой включается пин
+pin = 15;           #Номер пина, отвечающего за управление
+tempON = 50;        #Температура включения пина
 threshold = 5;
 
 GPIO.setmode(GPIO.BOARD)
@@ -19,8 +19,8 @@ filetime = open('time');
 schedule = filetime.readlines();
 n = len(schedule);
 filetime.close();
-Pinstate_time = False;
-Pinstate_temp = False;
+Pinstate_time = False;     #Актуальное состояние пина для времени
+Pinstate_temp = False;     #Актуальное состояния пина для температуры
 time_array = [];
 
 class Time:
@@ -29,14 +29,13 @@ class Time:
         self.timeON = timeON;
         self.timeOFF = timeOFF;
 
-#Функция для определения температуры процессора
 def get_temp():
-    temp = check_output(["vcgencmd","measure_temp"]).decode()
+    temp = check_output(["vcgencmd","measure_temp"]).decode()  #Запрос температуры процессора
     temp = float(findall('\d+\.\d+', temp)[0])
     return(temp)
 
-#Определение настоящего времени и установка расписания включения и выключения пина
-currenttime = (datetime.now());
+#Установка расписания включения и выключения пина
+currenttime = (datetime.now());         #Получение значения настоящего времени 
 currenttime = datetime(currenttime.year, currenttime.month, currenttime.day, currenttime.hour, currenttime.minute, currenttime.second);
 for i in range(0, n, 2):
     z = '%H:%M\n' if i != n - 2 else '%H:%M';
@@ -49,8 +48,8 @@ for i in range(0, n, 2):
     time_array.append(settime);
 
 while True:
-    currenttime = (datetime.now());     #Time measurement
-    temp = get_temp();                  #Temperature measurement
+    currenttime = (datetime.now());     
+    temp = get_temp();                  #Получение значения температуры
     for i in range(len(time_array)):
         if currenttime.hour == time_array[i].timeON.hour and currenttime.minute == time_array[i].timeON.minute and not Pinstate_time:
             print("Pin ON");
