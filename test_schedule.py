@@ -7,12 +7,14 @@ from re import findall
 from subprocess import check_output
 from time import sleep
 
-pin = 15;
-tempON = 50;
+pin = 15;           #Номер пина
+tempON = 50;        #Температура, при которой включается пин
 threshold = 5;
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(pin, GPIO.OUT,initial = 0);
+
+#Считывание данных из файла
 filetime = open('time');
 schedule = filetime.readlines();
 n = len(schedule);
@@ -27,11 +29,13 @@ class Time:
         self.timeON = timeON;
         self.timeOFF = timeOFF;
 
+#Функция для определения температуры процессора
 def get_temp():
     temp = check_output(["vcgencmd","measure_temp"]).decode()
     temp = float(findall('\d+\.\d+', temp)[0])
     return(temp)
 
+#Определение настоящего времени и установка расписания включения и выключения пина
 currenttime = (datetime.now());
 currenttime = datetime(currenttime.year, currenttime.month, currenttime.day, currenttime.hour, currenttime.minute, currenttime.second);
 for i in range(0, n, 2):
@@ -45,8 +49,8 @@ for i in range(0, n, 2):
     time_array.append(settime);
 
 while True:
-    currenttime = (datetime.now()); #Time measurement
-    temp = get_temp(); #Temperature measurement
+    currenttime = (datetime.now());     #Time measurement
+    temp = get_temp();                  #Temperature measurement
     for i in range(len(time_array)):
         if currenttime.hour == time_array[i].timeON.hour and currenttime.minute == time_array[i].timeON.minute and not Pinstate_time:
             print("Pin ON");
@@ -57,6 +61,3 @@ while True:
         if temp > tempON and not Pinstate_temp or temp < tempON - threshold and Pinstate_temp:
             Pinstate_temp = not Pinstate_temp;
         GPIO.output(pin, Pinstate_temp or Pinstate_time);
-    
-    print(str(temp) + " " + str(Pinstate_temp));
-    sleep(2);
